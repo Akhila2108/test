@@ -1,0 +1,3 @@
+match_type,column_name,match_value,match_method,match_weighting,match_diff_max
+quick_match,entity_natural_key,,,,
+complex_match,entity_name_match_value,name,algorithm,100,30

@@ -1,0 +1,114 @@
+version: 2
+
+seeds:
+  - name: "{{ var('meta_source_entity') }}"
+    description: A seed file is used to map the records in the source entity by the columns
+    columns:
+      - name: record_source
+        description: record source of an entity 
+        tests:
+          - not_null
+      - name: table_source
+        description: table source of an entity
+        tests:
+          - not_null
+      - name: source_priority
+        description: table source of an entity
+        tests:
+          - not_null
+          - unique
+      - name: entity_natural_key
+        description: table source of an entity
+        tests:
+          - not_null
+
+  - name: "{{ var('meta_entity_match_key_values') }}"
+    description: A seed file which is used to generate entity match key values
+    columns:
+      - name: column_name
+        description: match value for an entity
+        tests:
+          - not_null
+          - unique
+      - name: match_type
+        description: match type for an entity
+        tests:
+          - accepted_values:
+              values: ['placed', 'ship']
+      - name: match_value
+        description: match value for an entity
+      - name: score_weighting
+        description: weightage for match type
+      - name: match_weighting
+        description: weightage for match type
+      - name: match_diff_match
+        description: weightage for match type
+  
+  - name: "{{ var('meta_source_columns') }}"
+    description: A seed file which is used to generate entity match key values
+    columns:
+      - name: column_name
+        description: match value for an entity
+        tests:
+          - not_null
+          - unique
+      - name: match_type
+        description: match type for an entity
+        tests:
+          - accepted_values:
+              values: ['x', 'complex_match', 'quick_match']
+      - name: data_type
+        description: weightage for match type
+        tests:
+          - accepted_values:
+              values: ['VARCHAR', 'INTEGER']
+      - name: cleanse_rule
+        description: weightage for match type
+        tests:
+          - accepted_values:
+              values: ['x', 'default', 'crn', 'remove_blankspace']
+      - name: cleanse_match_value
+        description: weightage for match type
+        tests:
+          - accepted_values:
+              values: ['x', 'company_name', 'crn', 'website', 'email', 'mobile_number']
+
+  - name: exclude_column_values
+    description: A seed file contains entity names that need to be excluded
+    columns:
+      - name: column_name
+        description: names of an entity that need to be excluded
+      - name: values_to_exclude
+        description: Values to exclude
+
+  - name: manual_entity_names
+    description: A seed file contains name of an entity for which the group id is assigned manually
+    columns:
+      - name: name
+        description: name of an entity
+      - name: group_id
+        description: manually assigned group id
+
+  - name: manual_entity_wildcards
+    description: A seed file contains wildcards of an entity name for which the group id is assigned manually
+    columns:
+      - name: wildcard
+        description: wildcard of an entity name
+      - name: group_id
+        description: manually assigned group id
+  
+  - name: manual_do_not_merge
+    description: A seed file contains explicitly assigned entity_hash_ids that must not be merged
+    columns:
+      - name: source_entity_hash_id
+        description: Hash id of one entity
+      - name: master_entity_hash_id
+        description: Hash id of another entity
+
+  - name: manual_force_merge
+    description: A seed file contains explicitly assigned entity_hash_ids that must be merged
+    columns:
+      - name: source_entity_hash_id
+        description: Hash id of one entity
+      - name: master_entity_hash_id
+        description: Hash id of another entity

@@ -1,0 +1,256 @@
+version: 2
+
+macros:
+  - name: clean_company_name
+    description: A macro is used to cleanse the Company name and generate the cleansed version of data
+    arguments:
+      - name: company
+        type: string
+        description: Name of the company
+
+  - name: clean_website
+    description: A macro is used to cleanse the website address and give the domain name of the web address
+    arguments:
+      - name: website
+        type: string
+        description: Website address of the company
+
+  - name: clean_email
+    description: A macro is used to cleanse the email address
+    arguments:
+      - name: email
+        type: string
+        description: Email address of the company
+
+  - name: extract_domain_from_email
+    description: A macro is used to get email address domain
+    arguments:
+      - name: email
+        type: string
+        description: Email address of the company
+
+  - name: clean_telephone
+    description: A macro is used to cleanse the telephone number
+    arguments:
+      - name: telephone
+        type: string
+        description: Telephone number of the company
+
+  - name: clean_address
+    description: A macro is used to cleanse the address name 
+    arguments:
+      - name: address_line_1
+        type: string
+        description: Address of the company
+      - name: postcode
+        type: string
+        description: Postcode of the company
+
+  - name: clean_postcode
+    description: A macro is used to cleanse the Postcode number
+    arguments:
+      - name: postcode
+        type: string
+        description: Postcode of the company
+
+  - name: clean_contact_name
+    description: A macro is used to cleanse the Contact name
+    arguments:
+      - name: full_name
+        type: string
+        description: Name of the employee in that company
+  
+  - name: create_rexp_function
+    description: A macro searches for repeated charachters that indicates dummy/test values being entered in a string 
+
+  - name: clean_company_registration_number
+    description: A macro is used to cleanse the company registration number
+    arguments:
+      - name: company_registration_number
+        type: string
+        description: Company registration number of the company
+
+  - name: generate_hash_id
+    description: A macro is used to generate hash id
+    arguments:
+      - name: record_source
+        type: string
+        description: Record source of an entity
+      - name: table_source
+        type: string
+        description: Table source of an entity
+      - name: natural_key
+        type: string
+        description: Natural key of an entity
+
+  - name: update_master_entity
+    description: Insert the matched,fixed and unmatched data into the master entity table
+    arguments:
+      - name: source_records
+        type: string
+        description: Name of the table
+
+  - name: update_quick_match_audit
+    description: Insert the quick match data to quick match audit table
+    arguments:
+      - name: source_records
+        type: string
+        description: Name of the table
+
+  - name: update_complex_match_audit
+    description: Insert the complex match data to complex match audit table
+    arguments:
+      - name: source_records
+        type: string
+        description: Name of the table
+
+  - name: update_graph_edge_audit
+    description: Insert the graph network data to graph edge audit table
+    arguments:
+      - name: source_records
+        type: string
+        description: Name of the table
+
+  - name: get_entity_match_keys
+    description: Using mapping entity match key values of seed to find the active records to generate the score weightening
+
+  - name: create_proc_graph_network
+    description: |
+      > The core logic resides here, the matched records in Quick and Complex process are considered as nodes in the graph network. 
+        The link between two nodes is considered as edges along with the group id generated for pair of nodes. 
+        For the above data, minimum group id will be identified and replaced. 
+        Previous process will be repeated until each node is assigned with least minimum group id.
+
+  - name: call_proc_graph_network
+    description: A macro is used to call the graph network procedure
+    arguments:
+      - name: output_table
+        type: string
+        description: Name of the table
+
+  - name: node_dedupe
+    description: A macro is used for deduplication of left node and right node
+    arguments:
+      - name: table_name
+        type: string
+        description: Name of the table
+
+  - name: do_not_merge
+    description: A macro is used to prevent some records from being merged
+    arguments:
+      - name: cte_name
+        type: string
+        description: Name of the CTE
+      - name: table_name
+        type: string
+        description: Name of the table
+
+  - name: update_merge_reason
+    description: A macro is used to update merge reason as 'Graph', if the record later matches with another record
+
+  - name: most_recent_record
+    description: A macro is used to identify the most recent record using LUD(Last update date)
+    arguments:
+      - name: source_column
+        type: string
+        description: source column
+      - name: group_by_column
+        type: string
+        description: group by column
+      - name: order_column
+        type: string
+        description: order column
+
+  - name: most_complete_record
+    description: A macro is used to identify the most complete record using length
+    arguments:
+      - name: source_column
+        type: string
+        description: source column
+      - name: group_by_column
+        type: string
+        description: group by column
+      - name: order_column
+        type: string
+        description: order column
+      - name: length_column
+        type: numeric
+        description: length column 
+
+  - name: most_recent_by_record_source
+    description: A macro is used to identify the most recent record by record source
+    arguments:
+      - name: source_column
+        type: string
+        description: source column
+      - name: group_by_column
+        type: string
+        description: group by column
+      - name: order_column
+        type: string
+        description: order column
+      - name: list_of_sources
+        type: list
+        description: list of sources
+
+  - name: lowest_record
+    description: A macro is used to identify the lowest record by value
+    arguments:
+      - name: source_column
+        type: string
+        description: source column
+      - name: group_by_column
+        type: string
+        description: group by column
+      - name: order_column
+        type: string
+        description: order column
+
+  - name: highest_record
+    description: A macro is used to identify the highest record by value
+    arguments:
+      - name: source_column
+        type: string
+        description: source column
+      - name: group_by_column
+        type: string
+        description: group by column
+      - name: order_column
+        type: string
+        description: order column
+
+  - name: dominant_value
+    description: A macro is used to identify the dominant record using frequnetly occuring value and record source
+    arguments:
+      - name: source_column
+        type: string
+        description: source column
+      - name: group_by_column
+        type: string
+        description: group by column
+      - name: date_order_column
+        type: timestamp
+        description: order a column with date
+      - name: field
+        type: string
+        description: name of the required column
+      - name: First_Source
+        type: string
+        description: dominant record source
+
+  - name: generate_schema_name
+    description: A macro is used to generate custom schema name
+    arguments:
+      - name: custom_schema_name
+        type: string
+        description: Name of the custom schema
+
+  - name: get_entity_match_key
+    description: A macro is used to get entity match key
+
+  - name: get_source_info
+    description: A macro is used to generate source information
+    arguments:
+      - name: source
+        type: string
+        description: Name of the source

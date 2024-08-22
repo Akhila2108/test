@@ -1,0 +1,3 @@
+record_source,table_source,source_priority,entity_natural_key,entity_name,country_code,email,phone_no,product,city,url,zipcode
+hotels,HOTELS,1,HOTELDETAILID,HOTELNAME,COUNTRYID,EMAIL,TELEPHONE,x,city,url,zipcode
+pmp_new,PMP_NEW,2,CUSTOMERID,NAME,x,EMAIL,phone,PRODUKT,city,x,x

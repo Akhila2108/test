@@ -1,0 +1,51 @@
+version: 2
+
+sources:
+  - name: sandbox_data
+    description: Sample data's for single customer matching
+    database: SANDBOX
+    schema: ENTITY_RESOLUTION
+    tables:
+      - name: MARKETLOCATION
+      - name: SALESFORCE
+    freshness:
+      warn_after: {count: 24, period: hour}
+
+    loaded_at_field: load_date
+  
+  - name: sandbox_data_mitel
+    description: Sample data's for single customer matching
+    database: SANDBOX
+    schema: ENTITY_RESOLUTION_MITEL
+    tables:
+    - name: MITEL_DISTINCT_DISTRIBUTOR_DETAILS
+    - name: UNIFY_DISTINCT_DISTRIBUTOR_DETAILS
+  
+  # configurations for NEG project
+  - name: edubase
+    description: Sample data's for single customer matching
+    database: SANDBOX
+    schema: ENTITY_RESOLUTION_NEG
+    tables:
+      - name: NEG_EDUBASE_NEW
+  
+  - name: hubspot
+    description: Sample data's for single customer matching
+    database: SANDBOX
+    schema: ENTITY_RESOLUTION_NEG
+    tables:
+      - name: NEG_HUBSPOT
+  
+  - name: pmp_new
+    description: Sample data's for single customer matching
+    database: SANDBOX
+    schema: ENTITY_RESOLUTION_PLANET
+    tables:
+      - name: PMP_NEW
+  
+  - name: hotels
+    description: Sample data's for single customer matching
+    database: SANDBOX
+    schema: ENTITY_RESOLUTION_PLANET
+    tables:
+      - name: HOTELS

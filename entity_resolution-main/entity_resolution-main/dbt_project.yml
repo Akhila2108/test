@@ -1,0 +1,79 @@
+# Name your project! Project names should contain only lowercase characters
+# and underscores. A good package name should reflect your organization's
+# name or the intended use of these models
+name: 'entity_resolution'
+version: '1.0.0'
+config-version: 2
+
+# This setting configures which "profile" dbt uses for this project.
+profile: 'entity_resolution'
+
+# These configurations specify where dbt should look for different types of files.
+# The `model-paths` config, for example, states that models in this project can be
+# found in the "models/" directory. You probably won't need to change these!
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+target-path: "target"  # directory which will store compiled SQL files
+clean-targets:         # directories to be removed by `dbt clean`
+  - "target"
+  - "dbt_packages"
+
+
+# Configuring models
+# Full documentation: https://docs.getdbt.com/docs/configuring-models
+
+# In this example config, we tell dbt to build all models in the example/ directory
+# as tables. These settings can be overridden in the individual model files
+# using the `{{ config(...) }}` macro.
+models: 
+  entity_resolution:
+    +transient: false
+    materialized: table
+    00_data_governance:
+      schema: DATA_PROFILE
+      post-hook:
+        - "drop table if exists data_profile.tmp_data_profile"
+    01_prep:
+      schema: PREP_BCP
+    02_core:
+      schema: CORE_BCP
+    03_audit:
+      schema: AUDIT_BCP
+    04_match:
+      schema: MATCH_BCP
+    05_graph:
+      schema: GRAPH_BCP
+    06_merge:
+      schema: MERGE_BCP
+    07_survivorship:
+      schema: SURVIVOURSHIP
+        
+seeds:
+  entity_resolution:
+      +schema: REFERENCE
+
+
+vars:
+    default_entity_name               : "xxxxxxxxxxxxxxxxxxx"
+    default_entity_group_id           : 1000000000000000
+    default_entity_top_group_id       : 50
+    default_varchar_length            : 200
+
+    meta_source_entity                : "config_table_sources"
+    meta_entity_match_key_values      : "config_match_values"
+    meta_source_columns               : "config_required_field_and_rules"
+    meta_ssot_columns                 : "config_ssot_fields_and_rules"
+
+    min_data_loaded_at                : "1900-01-01"
+    data_loaded_at                    : "null"
+    
+    threshold_merge                   : 95
+    threshold_possible_merge          : 90
+    threshold_total_match_score       : 0.7
+
+    avoid_dummy_values_count_thresold: 20000

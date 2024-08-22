@@ -1,0 +1,298 @@
+version: 2
+
+models:
+  - name: prep_entity
+    description: A model is used to combine the sources and apply cleansing
+    columns:
+      - name: record_source
+        description: '{{ doc("record_source") }}'
+        tests:
+          - not_null
+      - name: table_source
+        description: '{{ doc("table_source") }}'
+        tests:
+          - not_null
+      - name: entity_hash_id
+        description: '{{ doc("entity_hash_id") }}'
+        tests:
+          - unique
+          - not_null
+      - name: entity_natural_key
+        description: '{{ doc("entity_natural_key") }}'
+        tests:
+          - not_null         
+      - name: entity_name
+        description: '{{ doc("entity_name") }}'
+
+  - name: master_entity
+    description: A model is used to store all records in incremental materialization after the match and merge process
+    columns:
+      - name: group_id
+        description: '{{ doc("group_id") }}'
+        tests:
+          - not_null 
+      - name: entity_hash_id
+        description: '{{ doc("entity_hash_id") }}'
+        tests:
+          - not_null 
+          - unique
+      - name: record_source
+        description: '{{ doc("record_source") }}'
+        tests:
+          - not_null 
+      - name: table_source
+        description: '{{ doc("table_source") }}'
+        tests:
+          - not_null 
+      - name: entity_natural_key
+        description: '{{ doc("entity_natural_key") }}'
+        tests:
+          - not_null 
+      - name: merge_reason
+        description: '{{ doc("merge_reason") }}'
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['FIXED', 'GRAPH', 'UNMERGED']
+      - name: merge_timestamp
+        description: '{{ doc("merge_timestamp") }}'
+        tests:
+          - not_null
+  
+  - name: source_entity
+    description: A model is used to get the latest version of the records on daily basis by comparing with (master entity) table. Initial load, all the records from prep entity will be available in source entity
+    columns:
+      - name: record_source
+        description: '{{ doc("record_source") }}'
+        tests:
+          - not_null 
+      - name: table_source
+        description: '{{ doc("table_source") }}'
+        tests:
+          - not_null 
+      - name: entity_hash_id
+        description: '{{ doc("entity_hash_id") }}'
+        tests:
+          - not_null 
+          - unique
+      - name: entity_natural_key
+        description: '{{ doc("entity_natural_key") }}'
+        tests:
+          - not_null
+
+  - name: quick_match
+    description:  Any matches based on the identifiers (Universally used ids like URN, CRN, any common ids) will fall under the category of quick match 
+    columns:
+      - name: group_id
+        description: '{{ doc("group_id") }}'
+      - name: record_source
+        description: '{{ doc("record_source") }}'
+        tests:
+          - not_null 
+      - name: table_source
+        description: '{{ doc("table_source") }}'
+        tests:
+          - not_null 
+      - name: entity_hash_id
+        description: '{{ doc("entity_hash_id") }}'
+        tests:
+          - not_null 
+      - name: master_entity_hash_id
+        description: '{{ doc("master_entity_hash_id") }}'
+        tests:
+          - not_null 
+      - name: entity_natural_key
+        description: '{{ doc("entity_natural_key") }}'
+        tests:
+          - not_null 
+      - name: merge_reason
+        description: '{{ doc("merge_reason") }}'
+        tests:
+          - not_null
+
+  - name: complex_match
+    description: This tables helps to find the matches between the records, should there are no common/universal identifiers to join the records. 
+    columns:
+      - name: source_entity_hash_id
+        description: '{{ doc("source_entity_hash_id") }}'
+        tests:
+          - not_null 
+      - name: master_entity_hash_id
+        description: '{{ doc("master_entity_hash_id") }}'
+        tests:
+          - not_null 
+      - name: source_record_source
+        description: '{{ doc("source_record_source") }}'
+        tests:
+          - not_null 
+      - name: source_table_source
+        description: '{{ doc("source_table_source") }}'
+        tests:
+          - not_null 
+      - name: master_record_source
+        description: '{{ doc("master_record_source") }}'
+        tests:
+          - not_null 
+      - name: master_table_source
+        description: '{{ doc("master_table_source") }}'
+        tests:
+          - not_null 
+      - name: source_entity_natural_key
+        description: '{{ doc("source_entity_natural_key") }}'
+        tests:
+          - not_null
+      - name: total_match_score
+        description: '{{ doc("total_match_score") }}'
+        tests:
+          - not_null 
+      - name: merge_decision
+        description: '{{ doc("merge_decision") }}'
+        tests:
+          - not_null 
+          - accepted_values:
+              values: ['MERGE', 'POSSIBLE MERGE', 'DO NOT MERGE']
+      - name: master_record_source_priority
+        description: '{{ doc("master_record_source_priority") }}'
+      - name: match_timestamp
+        description: '{{ doc("match_timestamp") }}'
+
+  - name: graph_edge_in
+    description: The matched records in Quick and Complex process are considered as nodes in the graph network. 
+    columns:
+      - name: left_node
+        description: '{{ doc("left_node") }}'
+        tests:
+          - not_null 
+      - name: right_node
+        description: '{{ doc("right_node") }}'
+        tests:
+          - not_null 
+      - name: group_id
+        description: '{{ doc("group_id") }}'
+        tests:
+          - not_null 
+      - name: old_group_id
+        description: '{{ doc("old_group_id") }}'
+
+  - name: graph_edge_out
+    description: Apply the graph network algorithm. The link between two nodes is considered as edges along with the group id generated for pair of nodes. For the above data, minimum group id will be identified and replaced. Previous process will be repeated until each node is assigned with least minimum group id.
+    columns:
+      - name: left_node
+        description: '{{ doc("left_node") }}'
+        tests:
+          - not_null 
+      - name: right_node
+        description: '{{ doc("right_node") }}'
+        tests:
+          - not_null 
+      - name: group_id
+        description: '{{ doc("group_id") }}'
+        tests:
+          - not_null 
+      - name: old_group_id
+        description: '{{ doc("old_group_id") }}'
+
+  - name: stg_matched
+    description: A model is used to find the matched records
+    columns:
+      - name: group_id
+        description: '{{ doc("group_id") }}'
+        tests:
+          - not_null 
+      - name: entity_hash_id
+        description: '{{ doc("entity_hash_id") }}'
+        tests:
+          - not_null 
+          - unique
+      - name: record_source
+        description: '{{ doc("record_source") }}'
+        tests:
+          - not_null 
+      - name: table_source
+        description: '{{ doc("table_source") }}'
+        tests:
+          - not_null 
+      - name: entity_natural_key
+        description: '{{ doc("entity_natural_key") }}'
+        tests:
+          - not_null 
+      - name: merge_reason
+        description: '{{ doc("merge_reason") }}'
+        tests:
+          - not_null 
+          - accepted_values:
+              values: ['MERGE', 'POSSIBLE MERGE', 'DO NOT MERGE']
+      - name: merge_timestamp
+        description: '{{ doc("merge_timestamp") }}'
+        tests:
+          - not_null 
+
+  - name: stg_fixed
+    description: A model is used to include the records which are mentioned in the manual_company_names and manual_wildcard_names seed file (manual fixed).
+    columns:
+      - name: group_id
+        description: '{{ doc("group_id") }}'
+        tests:
+          - not_null 
+      - name: entity_hash_id
+        description: '{{ doc("entity_hash_id") }}'
+        tests:
+          - not_null 
+          - unique
+      - name: record_source
+        description: '{{ doc("record_source") }}'
+        tests:
+          - not_null 
+      - name: table_source
+        description: '{{ doc("table_source") }}'
+        tests:
+          - not_null 
+      - name: entity_natural_key
+        description: '{{ doc("entity_natural_key") }}'
+        tests:
+          - not_null 
+      - name: merge_reason
+        description: '{{ doc("merge_reason") }}'
+        tests:
+          - not_null 
+          - accepted_values:
+              values: ['MERGE', 'POSSIBLE MERGE', 'DO NOT MERGE']
+      - name: merge_timestamp
+        description: '{{ doc("merge_timestamp") }}'
+        tests:
+          - not_null 
+
+  - name: stg_unmatched
+    description: A model is used to find the unmatched records
+    columns:
+      - name: group_id
+        description: '{{ doc("group_id") }}'
+        tests:
+          - not_null 
+      - name: entity_hash_id
+        description: '{{ doc("entity_hash_id") }}'
+        tests:
+          - not_null 
+          - unique
+      - name: record_source
+        description: '{{ doc("record_source") }}'
+        tests:
+          - not_null 
+      - name: table_source
+        description: '{{ doc("table_source") }}'
+        tests:
+          - not_null 
+      - name: entity_natural_key
+        description: '{{ doc("entity_natural_key") }}'
+        tests:
+          - not_null 
+      - name: merge_reason
+        description: '{{ doc("merge_reason") }}'
+        tests:
+          - not_null 
+          - accepted_values:
+              values: ['MERGE', 'POSSIBLE MERGE', 'DO NOT MERGE']
+      - name: merge_timestamp
+        description: '{{ doc("merge_timestamp") }}'
+        tests:
+          - not_null 

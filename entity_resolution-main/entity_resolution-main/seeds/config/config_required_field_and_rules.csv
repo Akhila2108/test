@@ -1,0 +1,5 @@
+column_name, data_type,cleanse_rule,cleanse_match_rule
+record_source,varchar,x,x
+table_source,varchar,x,x
+entity_natural_key,varchar,x,x
+entity_name,varchar,default,hotel_name
